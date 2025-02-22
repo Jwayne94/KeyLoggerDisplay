@@ -95,6 +95,38 @@ namespace KeyLoggerDisplay
                 (Screen.PrimaryScreen.Bounds.Height - this.Height) / 2
             );
         }
+
+        private void MainForm_Shown(object sender, EventArgs e)
+        {
+            // Сворачиваем окно в трей после его полного отображения
+            Hide();
+            notifyIcon.Visible = true; // Показываем иконку в трее
+        }
+
+        private void showMenuItem_Click(object sender, EventArgs e)
+        {
+            // Показываем окно
+            Show();
+            WindowState = FormWindowState.Normal;
+        }
+
+        private void exitMenuItem_Click(object sender, EventArgs e)
+        {
+            // Закрываем приложение
+            Application.Exit();
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+
+            // Если форма свернута, скрываем ее и показываем иконку в трее
+            if (WindowState == FormWindowState.Minimized)
+            {
+                Hide();
+                notifyIcon.Visible = true;
+            }
+        }
     }
 }
 /*
@@ -112,4 +144,12 @@ OnMouseUp :
 Когда пользователь отпускает кнопку мыши, мы прекращаем перемещение.
 OnMouseMove :
 Если перемещение активно (_isDragging == true), рассчитываем новую позицию окна относительно начальных координат и обновляем его местоположение.
+MainForm_Load :
+При запуске приложения окно автоматически сворачивается в трей.
+showMenuItem_Click :
+Когда пользователь выбирает пункт "Show", окно показывается, а иконка в трее скрывается.
+exitMenuItem_Click :
+Когда пользователь выбирает пункт "Exit", приложение закрывается.
+OnResize :
+Если пользователь сворачивает окно, оно скрывается, а иконка становится видимой в трее.
 */
