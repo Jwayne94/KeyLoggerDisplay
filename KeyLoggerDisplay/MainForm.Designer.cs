@@ -38,17 +38,21 @@
             this.keyLogListBox.FormattingEnabled = true;
             this.keyLogListBox.Location = new System.Drawing.Point(0, 0);
             this.keyLogListBox.Name = "keyLogListBox";
-            this.keyLogListBox.Size = new System.Drawing.Size(800, 450);
+            this.keyLogListBox.Size = new System.Drawing.Size(300, 150);
             this.keyLogListBox.TabIndex = 0;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.BackColor = System.Drawing.Color.Black;
+            this.ClientSize = new System.Drawing.Size(300, 150);
             this.Controls.Add(this.keyLogListBox);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "MainForm";
-            this.Text = "Form1";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
+            this.Text = "MainForm";
+            this.TransparencyKey = System.Drawing.Color.Black;
             this.ResumeLayout(false);
 
         }
