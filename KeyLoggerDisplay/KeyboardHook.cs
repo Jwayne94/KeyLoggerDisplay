@@ -16,8 +16,9 @@ namespace KeyLoggerDisplay
         // Указатель на установленный хук
         private IntPtr _hookId = IntPtr.Zero;
 
-        // Событие, которое будет вызываться при нажатии клавиш
+        // События
         public event Action<string> KeyPressed;
+        public event Action HotkeyPressed;
 
         // Конструктор
         public KeyboardHook()
@@ -42,9 +43,21 @@ namespace KeyLoggerDisplay
             if (nCode >= 0 && wParam == (IntPtr)WM_KEYDOWN)
             {
                 int vkCode = Marshal.ReadInt32(lParam);
-                string key = ((Keys)vkCode).ToString();
 
-                // Вызываем событие KeyPressed
+                // Проверяем, нажаты ли Ctrl и Shift
+                bool isCtrlPressed = GetKeyState((int)Keys.ControlKey) < 0;
+                bool isShiftPressed = GetKeyState((int)Keys.ShiftKey) < 0;
+
+                // Если нажата комбинация Ctrl + Shift + K
+                if (isCtrlPressed && isShiftPressed && vkCode == (int)Keys.K)
+                {
+                    // Вызываем событие HotkeyPressed
+                    HotkeyPressed?.Invoke();
+                    return IntPtr.Zero; // Прерываем дальнейшую обработку
+                }
+
+                // Для обычных клавиш вызываем KeyPressed
+                string key = ((Keys)vkCode).ToString();
                 KeyPressed?.Invoke(key);
             }
 
@@ -72,12 +85,8 @@ namespace KeyLoggerDisplay
 
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern IntPtr GetModuleHandle(string lpModuleName);
+
+        [DllImport("user32.dll")]
+        private static extern short GetKeyState(int nVirtKey);
     }
 }
-
-/*
-HookProc : Это делегат, который будет вызываться каждый раз, когда происходит событие клавиш.
-SetHook : Метод устанавливает глобальный хук для отслеживания клавиш.
-HookCallback : Этот метод обрабатывает события клавиш. Если клавиша была нажата (WM_KEYDOWN), он преобразует код клавиши в строку и вызывает событие KeyPressed.
-Dispose : Метод освобождает ресурсы, связанные с хуком.
-*/

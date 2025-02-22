@@ -18,6 +18,23 @@ namespace KeyLoggerDisplay
         {
             _keyboardHook = new KeyboardHook();
             _keyboardHook.KeyPressed += OnKeyPressed;
+            _keyboardHook.HotkeyPressed += OnHotkeyPressed; // Подписываемся на горячие клавиши
+        }
+
+        private void OnHotkeyPressed()
+        {
+            // Переключаем видимость формы
+            if (this.Visible)
+            {
+                Hide(); // Скрываем форму
+                notifyIcon.Visible = true; // Показываем иконку в трее
+            }
+            else
+            {
+                Show(); // Показываем форму
+                WindowState = FormWindowState.Normal;
+                notifyIcon.Visible = false; // Скрываем иконку в трее
+            }
         }
 
         private void OnKeyPressed(string key)
