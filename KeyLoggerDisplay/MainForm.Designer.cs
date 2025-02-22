@@ -28,21 +28,34 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.keyLogListBox = new System.Windows.Forms.ListBox();
             this.SuspendLayout();
+            // 
+            // keyLogListBox
+            // 
+            this.keyLogListBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.keyLogListBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.keyLogListBox.FormattingEnabled = true;
+            this.keyLogListBox.Location = new System.Drawing.Point(0, 0);
+            this.keyLogListBox.Name = "keyLogListBox";
+            this.keyLogListBox.Size = new System.Drawing.Size(800, 450);
+            this.keyLogListBox.TabIndex = 0;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.keyLogListBox);
             this.Name = "MainForm";
             this.Text = "Form1";
-            this.Load += new System.EventHandler(this.MainForm_Load);
             this.ResumeLayout(false);
 
         }
 
         #endregion
+
+        private System.Windows.Forms.ListBox keyLogListBox;
     }
 }
 
