@@ -20,6 +20,23 @@ namespace KeyLoggerDisplay
         public event Action<string> KeyPressed;
         public event Action HotkeyPressed;
 
+        // Текущая горячая клавиша (по умолчанию 'K')
+        private Keys _hotkey = Keys.K;
+
+        // Свойство для изменения горячей клавиши
+        public Keys Hotkey
+        {
+            get => _hotkey;
+            set
+            {
+                if (_hotkey != value)
+                {
+                    _hotkey = value;
+                    Console.WriteLine($"Hotkey updated to Ctrl + Shift + {_hotkey}");
+                }
+            }
+        }
+
         // Конструктор
         public KeyboardHook()
         {
@@ -48,8 +65,8 @@ namespace KeyLoggerDisplay
                 bool isCtrlPressed = GetKeyState((int)Keys.ControlKey) < 0;
                 bool isShiftPressed = GetKeyState((int)Keys.ShiftKey) < 0;
 
-                // Если нажата комбинация Ctrl + Shift + K
-                if (isCtrlPressed && isShiftPressed && vkCode == (int)Keys.K)
+                // Если нажата текущая горячая клавиша
+                if (isCtrlPressed && isShiftPressed && vkCode == (int)_hotkey)
                 {
                     // Вызываем событие HotkeyPressed
                     HotkeyPressed?.Invoke();

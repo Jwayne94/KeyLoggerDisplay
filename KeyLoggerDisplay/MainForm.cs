@@ -41,7 +41,6 @@ namespace KeyLoggerDisplay
         {
             // Добавляем нажатую клавишу в ListBox
             AddKeyToLog(key);
-
             // Выводим сообщение в консоль для проверки
             Console.WriteLine($"Key pressed: {key}");
         }
@@ -50,7 +49,6 @@ namespace KeyLoggerDisplay
         {
             // Добавляем новую клавишу в начало списка
             keyLogListBox.Items.Insert(0, key);
-
             // Ограничиваем количество элементов в списке (например, до 5)
             if (keyLogListBox.Items.Count > 5)
             {
@@ -61,7 +59,56 @@ namespace KeyLoggerDisplay
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             base.OnFormClosing(e);
-            _keyboardHook?.Dispose(); // Освободить ресурсы хука
+            // Освобождаем ресурсы хука
+            _keyboardHook?.Dispose();
+            // Сохраняем текущую горячую клавишу
+            SaveSettings();
+        }
+
+        private void SaveSettings()
+        {
+            // Путь к файлу настроек
+            string settingsFilePath = "settings.txt";
+
+            // Сохраняем текущую горячую клавишу
+            if (_keyboardHook != null)
+            {
+                System.IO.File.WriteAllText(settingsFilePath, _keyboardHook.Hotkey.ToString());
+            }
+        }
+
+        private void LoadSettings()
+        {
+            // Путь к файлу настроек
+            string settingsFilePath = "settings.txt";
+
+            // Если файл существует, загружаем настройки
+            if (System.IO.File.Exists(settingsFilePath))
+            {
+                string savedHotkey = System.IO.File.ReadAllText(settingsFilePath);
+
+                // Преобразуем строку в Keys
+                if (Enum.TryParse(savedHotkey, true, out Keys key))
+                {
+                    // Устанавливаем горячую клавишу в KeyboardHook
+                    if (_keyboardHook != null)
+                    {
+                        _keyboardHook.Hotkey = key;
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Invalid hotkey in settings file. Using default.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+            else
+            {
+                // Если файла нет, используем значение по умолчанию
+                if (_keyboardHook != null)
+                {
+                    _keyboardHook.Hotkey = Keys.K; // Default hotkey
+                }
+            }
         }
 
         private bool _isDragging = false;
@@ -70,7 +117,6 @@ namespace KeyLoggerDisplay
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
-
             if (e.Button == MouseButtons.Left)
             {
                 _isDragging = true;
@@ -81,14 +127,12 @@ namespace KeyLoggerDisplay
         protected override void OnMouseUp(MouseEventArgs e)
         {
             base.OnMouseUp(e);
-
             _isDragging = false;
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
-
             if (_isDragging)
             {
                 // Рассчитываем новую позицию окна
@@ -96,7 +140,6 @@ namespace KeyLoggerDisplay
                     this.Location.X + (e.X - _dragStartPoint.X),
                     this.Location.Y + (e.Y - _dragStartPoint.Y)
                 );
-
                 this.Location = newLocation; // Обновляем позицию окна
             }
         }
@@ -104,13 +147,14 @@ namespace KeyLoggerDisplay
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-
             // Центрируем окно на экране
             this.StartPosition = FormStartPosition.Manual;
             this.Location = new Point(
                 (Screen.PrimaryScreen.Bounds.Width - this.Width) / 2,
                 (Screen.PrimaryScreen.Bounds.Height - this.Height) / 2
             );
+            // Загружаем сохраненные настройки
+            LoadSettings();
         }
 
         private void MainForm_Shown(object sender, EventArgs e)
@@ -133,15 +177,35 @@ namespace KeyLoggerDisplay
             Application.Exit();
         }
 
-        protected override void OnResize(EventArgs e)
+        private void settingsMenuItem_Click(object sender, EventArgs e)
         {
-            base.OnResize(e);
-
-            // Если форма свернута, скрываем ее и показываем иконку в трее
-            if (WindowState == FormWindowState.Minimized)
+            // Создаем экземпляр формы настроек
+            using (var settingsForm = new SettingsForm())
             {
-                Hide();
-                notifyIcon.Visible = true;
+                if (settingsForm.ShowDialog() == DialogResult.OK)
+                {
+                    // Применяем новые настройки
+                    UpdateHotkey(settingsForm.SelectedHotkey);
+                }
+            }
+        }
+
+        private void UpdateHotkey(string newHotkey)
+        {
+            if (!string.IsNullOrEmpty(newHotkey))
+            {
+                // Преобразуем строку в(Keys)
+                if (Enum.TryParse(newHotkey, true, out Keys key))
+                {
+                    // Обновляем горячую клавишу в KeyboardHook
+                    _keyboardHook.Hotkey = key;
+                    // Выводим сообщение для проверки
+                    Console.WriteLine($"New hotkey set: Ctrl + Shift + {newHotkey}");
+                }
+                else
+                {
+                    MessageBox.Show("Invalid hotkey!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
     }
