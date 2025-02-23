@@ -61,21 +61,34 @@ namespace KeyLoggerDisplay
             {
                 int vkCode = Marshal.ReadInt32(lParam);
 
-                // Проверяем, нажаты ли Ctrl и Shift
+                // Проверяем состояние модификаторов
                 bool isCtrlPressed = GetKeyState((int)Keys.ControlKey) < 0;
                 bool isShiftPressed = GetKeyState((int)Keys.ShiftKey) < 0;
+                bool isAltPressed = GetKeyState((int)Keys.Menu) < 0;
 
-                // Если нажата текущая горячая клавиша
-                if (isCtrlPressed && isShiftPressed && vkCode == (int)_hotkey)
+                // Собираем комбинацию клавиш
+                string combination = "";
+
+                if (isCtrlPressed) combination += "Ctrl + ";
+                if (isShiftPressed) combination += "Shift + ";
+                if (isAltPressed) combination += "Alt + ";
+
+                // Добавляем основную клавишу
+                string key = ((Keys)vkCode).ToString();
+                combination += key;
+
+                // Удаляем лишний пробел и "+", если комбинация пустая
+                if (combination.EndsWith(" + ")) combination = combination.TrimEnd(' ', '+');
+
+                // Вызываем событие KeyPressed с комбинацией
+                KeyPressed?.Invoke(combination);
+
+                // Обработка горячих клавиш
+                if (isCtrlPressed && isShiftPressed && vkCode == (int)Keys.K)
                 {
-                    // Вызываем событие HotkeyPressed
                     HotkeyPressed?.Invoke();
                     return IntPtr.Zero; // Прерываем дальнейшую обработку
                 }
-
-                // Для обычных клавиш вызываем KeyPressed
-                string key = ((Keys)vkCode).ToString();
-                KeyPressed?.Invoke(key);
             }
 
             return CallNextHookEx(_hookId, nCode, wParam, lParam);
